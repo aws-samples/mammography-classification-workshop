@@ -1,0 +1,202 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: SageMaker Workshop - CloudFormation Template
+
+Mappings:
+  AWSRegionToAMI:
+    us-east-1: {AMI: ami-0080e4c5bc078760e}
+    us-east-2: {AMI: ami-0cd3dfa4e37921605}
+    us-west-2: {AMI: ami-01e24be29428c15b2}
+    eu-west-1: {AMI: ami-08935252a36e25f85}
+Parameters:
+  VPCCIDR:
+    Description: "VPC IP Range (Example: 192.168.0.0/24)"
+    Type: String
+    Default: "192.168.0.0/24"
+  PublicSubnetCIDR:
+    Description: "Public subnet IP Range (Example: 192.168.0.0/28)"
+    Type: String
+    Default: "192.168.0.0/28"
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: 'SageMaker Workshop VPC'
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: 'SageMaker Workshop IGW'
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      CidrBlock: !Ref PublicSubnetCIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: 'SageMaker Workshop Public Subnet'
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: 'SageMaker Workshop Route Table'
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  EC2S3Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      RoleName: 'EC2FullAccessToS3'
+
+  EC2RoleProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2S3Role
+      InstanceProfileName: 'EC2FullAccessToS3'
+
+  EC2ForOpenCVLambdaLayer:
+    Type: AWS::EC2::Instance
+    DependsOn:
+      - EC2RoleProfile
+      - MammographyBucket
+    Properties:
+      InstanceType: t2.micro
+      IamInstanceProfile: !Ref EC2RoleProfile
+      InstanceInitiatedShutdownBehavior: terminate
+      UserData:
+        Fn::Base64:
+          !Sub |
+          #!/bin/bash
+
+          cd /home/ec2-user
+
+          yum -y update
+          yum install -y gcc openssl-devel bzip2-devel libffi-devel
+          wget https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tgz
+          tar xzf Python-3.7.4.tgz
+
+          cd Python-3.7.4
+          ./configure --enable-optimizations
+          make altinstall
+
+          sudo sed -i 's+Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin+Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin+g' /etc/sudoers
+
+          export PATH="/usr/local/bin:$PATH"
+
+          python3.7 -m pip install boto3 opencv-python numpy --target ./opencv-python37-layer
+
+          chmod -R 777 opencv-python37-layer/
+
+          cd opencv-python37-layer/
+
+          rm -r *.dist-info __pycache__
+
+          zip -r opencv-python37-layer.zip .
+
+          chmod 777 opencv-python37-layer.zip
+
+          aws s3 cp opencv-python37-layer.zip s3://${MammographyBucket}/opencv-layer/opencv-python37-layer.zip
+
+          sudo init 0
+
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      ImageId:
+        Fn::FindInMap:
+          - AWSRegionToAMI
+          - {Ref: 'AWS::Region'}
+          - AMI
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: 'OpenCVLambdaLayerGenerator'
+
+  NotebookRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "sagemaker.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "*"
+                Resource: "*"
+
+  NotebookInstance:
+    Type: "AWS::SageMaker::NotebookInstance"
+    Properties:
+      InstanceType: "ml.t2.large"
+      RoleArn: !GetAtt NotebookRole.Arn
+      
+  MammographyBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "mammography-workshop-files-${AWS::Region}-${AWS::AccountId}"
+
+
+Outputs:
+  Instance:
+    Description: SageMaker Notebook Instance.
+    Value: !Ref NotebookInstance
+  Role:
+    Description: SageMaker Notebook Instance Role.
+    Value: !GetAtt NotebookRole.Arn
+  MammographyBucket:
+    Description: Bucket for storing the files needed and produced by this workshop.
+    Value: !Ref MammographyBucket

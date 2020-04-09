@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "SageMaker Workshop - CloudFormation Template - CloudFront"
+
+Parameters:
+  CloudFrontOriginAccessIdentity:
+    Type: String
+    Description: "CloudFront Origin Access Identity"
+  S3StaticWebsiteBucket:
+    Type: String
+    Description: "Bucket with static website code."
+
+
+Resources:
+
+  # Configure CloudFront as PriceClass_100 to deploy faster
+
+  CloudFrontDistribution:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: false
+          DefaultTTL: 60 # in seconds
+          ForwardedValues:
+            Cookies:
+              Forward: none
+            QueryString: false
+          MaxTTL: 86400 # in seconds
+          MinTTL: 0 # in seconds
+          TargetOriginId: s3origin
+          ViewerProtocolPolicy: 'allow-all'
+        DefaultRootObject: 'index.html'
+        Enabled: true
+        HttpVersion: http2
+        Origins:
+          - DomainName: !Ref S3StaticWebsiteBucket
+            Id: s3origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+        PriceClass: 'PriceClass_100'
+        CustomErrorResponses:
+          - ErrorCode: 500
+            ErrorCachingMinTTL: '10'
+
+
+Outputs:
+
+  WebSiteURL:
+    Description: Mammography website URL.
+    Value: !GetAtt CloudFrontDistribution.DomainName
+

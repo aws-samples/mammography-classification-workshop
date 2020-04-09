@@ -1,0 +1,10 @@
+{"source-ref":"s3://mammography-workshop-files-<<region>>-<<account-id>>/resize_00006585_009.png","mammography-views":4,"mammography-views-metadata":{"confidence":0.9,"job-name":"labeling-job/mammography-views","class-name":"Not a mammography","human-annotated":"yes","creation-date":"2020-02-01T14:47:00.585263","type":"groundtruth/image-classification"}}
+
+{"source-ref":"s3://mammography-workshop-files-<<region>>-<<account-id>>/resize_RIGHT_CC_A_0290_1.jpg","mammography-views":0,"mammography-views-metadata":{"confidence":0.75,"job-name":"labeling-job/mammography-views","class-name":"Right-CC","human-annotated":"yes","creation-date":"2020-02-01T14:48:04.189444","type":"groundtruth/image-classification"}}
+
+{"source-ref":"s3://mammography-workshop-files-<<region>>-<<account-id>>/resize_LEFT_CC_A_0296_1.jpg","mammography-views":1,"mammography-views-metadata":{"confidence":0.75,"job-name":"labeling-job/mammography-views","class-name":"Left-CC","human-annotated":"yes","creation-date":"2020-02-01T14:48:04.189469","type":"groundtruth/image-classification"}}
+
+{"source-ref":"s3://mammography-workshop-files-<<region>>-<<account-id>>/resize_RIGHT_MLO_D_4501_1.jpg","mammography-views":2,"mammography-views-metadata":{"confidence":0.9,"job-name":"labeling-job/mammography-views","class-name":"Right-MLO","human-annotated":"yes","creation-date":"2020-02-01T14:45:57.449584","type":"groundtruth/image-classification"}}
+
+{"source-ref":"s3://mammography-workshop-files-<<region>>-<<account-id>>/resize_LEFT_MLO_A_0431_1.jpg","mammography-views":3,"mammography-views-metadata":{"confidence":0.75,"job-name":"labeling-job/mammography-views","class-name":"Left-MLO","human-annotated":"yes","creation-date":"2020-02-01T14:48:04.189483","type":"groundtruth/image-classification"}}
+

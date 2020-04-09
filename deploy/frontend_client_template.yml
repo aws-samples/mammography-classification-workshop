@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "SageMaker Workshop - CloudFormation Template - Frontend"
+
+Resources:
+  # Create the bucket to contain the website HTML
+  S3StaticWebsiteBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub "mammography-static-website-${AWS::AccountId}"
+
+  # Configure the bucket as a CloudFront Origin
+  ReadPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3StaticWebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Action: 's3:GetObject'
+            Effect: Allow
+            Resource: !Sub 'arn:aws:s3:::${S3StaticWebsiteBucket}/*'
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
+
+  CloudFrontOriginAccessIdentity:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Ref S3StaticWebsiteBucket
+
+  PrivateBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "mammography-website-private-content-${AWS::AccountId}"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedOrigins: ['*']
+            AllowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - HEAD
+            Id: myCORSRuleId1
+  CognitoIdentityPoolId:
+    Type: "AWS::Cognito::IdentityPool"
+    Properties:
+      AllowUnauthenticatedIdentities: True
+
+  CognitoRole:
+    DependsOn: CognitoIdentityPoolId
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub "cognito-god-role-${AWS::AccountId}"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Federated:
+                - "cognito-identity.amazonaws.com"
+            Action:
+              - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              {
+                "ForAnyValue:StringLike":
+                  { "cognito-identity.amazonaws.com:amr": "unauthenticated" },
+                "StringEquals":
+                  {
+                    "cognito-identity.amazonaws.com:aud": !Ref CognitoIdentityPoolId,
+                  },
+              }
+      Path: "/"
+
+  CognitoRoleAttach:
+    DependsOn: CognitoIdentityPoolId
+    Type: "AWS::Cognito::IdentityPoolRoleAttachment"
+    Properties:
+      IdentityPoolId: !Ref CognitoIdentityPoolId
+      Roles: { "unauthenticated": !GetAtt CognitoRole.Arn }
+
+
+
+Outputs:
+  Region:
+    Description: Region.
+    Value: !Ref "AWS::Region"
+  
+  PrivateBucket:
+    Description: Private S3 bucket.
+    Value: !Ref PrivateBucket
+
+  S3StaticWebsiteBucket:
+    Description: Static website S3 bucket.
+    Value: !Ref S3StaticWebsiteBucket
+
+  CognitoIdentityPoolId:
+    Description: Identity ID to access AWS resources.
+    Value: !Ref CognitoIdentityPoolId
+
+  CloudFrontOriginAccessIdentity:
+    Description: CloudFront Origin Access Identity.
+    Value: !Ref CloudFrontOriginAccessIdentity
+
+  OriginDomainName:
+    Description: Origin Domain Name.
+    Value: !GetAtt S3StaticWebsiteBucket.DomainName

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Mammography Classification</title>
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>
+<link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
+<link rel='stylesheet' href='cdn.css'>
+<link rel='stylesheet' href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="img-container">
+        <p>Mammography<br> Classification</p>
+    </div>
+   <div class="container">
+	<div class="row">
+        <div class="well" data-bind="fileDrag: fileData">
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <img style="height: 125px;" class="img-rounded  thumb" data-bind="attr: { src: fileData().dataURL }, visible: fileData().dataURL">
+                    <div data-bind="ifnot: fileData().dataURL">
+                        <label class="drag-label">Drag image here</label>
+                    </div>
+                </div>
+                <form enctype='multipart/form-data'>
+
+                    <div class="col-md-6">
+
+                        <input id="img" required type="file" data-bind="fileInput: fileData, customFileInput: {
+                          buttonClass: 'btn btn-choose-file',
+                          fileNameClass: 'disabled form-control',
+                          onClear: onClear,
+                        }" accept="image/*">
+                    </div>
+                    <div>
+                        <input id="submit" type="submit" value="Submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+
+    <div class="container">
+      <div class="row">
+            <div class="col-md-12"><p class="text_result">Result</p><div class="result"></div></div>
+
+      </div>  
+    </div>
+    <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js'></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.556.0.min.js"></script>
+    <script src="jquery.js"></script>
+    <script  src="./config.js"></script>
+    <script  src="./script.js"></script>
+    <script src='./cdn.js'></script>
+
+</body>
+</html>
