@@ -87,17 +87,14 @@ Before we can start the workshop, we need to have a SageMaker Jupyter Notebook d
 And, finally, it will create a file inside that S3 bucket that contains a zip of OpenCV lib to be used in *Module 4 - Front End* of this workshop.
 
 **CloudFormation**
-1. [Click here](sagemaker_template.yml?raw=true) to download the **sagemaker_template.yml** template file you are going to use to deploy the basic infrastructure for this workshop.
+1. [Right-click here](sagemaker_template.yml?raw=true) and save the **sagemaker_template.yml** template file you are going to use to deploy the basic infrastructure for this workshop.
+1. <a id="raw-url" href="https://github.com/aws-samples/mammography-classification-workshop/sagemaker_template.yml">Click here</a> to download the **sagemaker_template.yml** template file you are going to use to deploy the basic infrastructure for this workshop.
 1. Login in the [AWS Console](https://console.aws.amazon.com/console/home). Make sure you are in the correct region assigned for this workshop.
 1. Navigate to CloudFormation console: [https://console.aws.amazon.com/cloudformation/home](https://console.aws.amazon.com/cloudformation/home)
 1. Once there, choose **Create Stack**.
 1. On "Step 1 - Create Stack", choose **Upload a template file**, then click on the **Choose file** button.
     1. Choose the template file you downloaded in Step 1. Click **Next**
-1. On "Step 2", type in the stack name: **mammography-workshop-set-up** <br/>
-    The VPC CIDR IP range is filled with a default value.
-    Make sure that that VPC CIDR IP range is available. Click [here](https://console.aws.amazon.com/vpc/home#vpcs) to see your VPCs.<br/>
-    If it is not available, the the CIDR accordingly.
-    Click **Next**
+1. On "Step 2", type in the stack name: **mammography-workshop-set-up** . Click **Next**
 1. On "Step 3 - Configure stack options": Just click on **Next** button
 1. On "Step 4 - Review": Enable the checkbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names.**, and click on **Create Stack** button
 
@@ -117,30 +114,29 @@ In order for us to do that, we will need to open the Jupyter Notebook created in
 
 1. Open the SageMaker Notebook console at https://console.aws.amazon.com/sagemaker/home#/notebook-instances
 2. Click on **Open JupyterLab**
-3. In the Jupyter Lab console, click on **Git** and then **Open Terminal**. Execute the code below in the terminal:
+3. In the Jupyter Lab console, open **Git menu** and then click on **Open Terminal**. Execute the code below in the terminal:
     ```
     cd SageMaker
     git clone https://github.com/mravanini/mammography-workshop.git
    
     ```
-If successful, you should see a message like this:
+    If successful, you should see a message like this:
 
-![Git Clone Successful](images/git-clone-successful.png)
+    ![Git Clone Successful](images/git-clone-successful.png)
 
 4. Now we will upload the mammography images from your local file into the S3 bucket your created in Module 1 of this workshop.
 Those files will be necessary for us to train, test, and validate our model.
 
-In order for us to do that, execute the following command. 
+5. In order for us to do that, execute the following command:  
 
-**Don't forget to change the bucket name for the name of the bucket created previously**.
+    (**Note: Don't forget to change the bucket name for the name of the bucket created previously**.)
 
 
+    
+    cd mammography-workshop/mammography-images
 
-```
-cd mammography-workshop/mammography-images
-
-aws s3 sync . s3://mammography-workshop-files-YY-YYYY-YY-XXXXXXXXXXXX
-``` 
+    aws s3 sync . s3://mammography-workshop-files-YY-YYYY-YY-XXXXXXXXXXXX
+     
 
 5. In the File Browse on the left, navigate to the folder mammography-workshop/sagemaker. You should see something like the image below. Open the notebook with the name mammography-classification.ipynb:
 
