@@ -137,7 +137,7 @@ If successful, you should see a message like this:
 
 6\. In the File Browse on the left, navigate to the folder mammography-classification-workshop/sagemaker. You should see something like the image below. Open the notebook with the name mammography-classification.ipynb:
 
-    ![How to open a notebook](images/open-notebook.png)
+![How to open a notebook](images/open-notebook.png)
 
 
 7\. Now, follow the instructions described in the notebook.  
@@ -167,7 +167,7 @@ The client application architecture is depicted below:
 It will look something like this: 
 
 
-d12yz34h5w67br.cloudfront.net
+**d12yz34h5w67br.cloudfront.net**
 
 
 This is an URL for the AWS content delivery network called Amazon CloudFront. **If you get an error accessing the page, wait a few more minutes and refresh your page.** It might take some time for CloudFront to propagate your site to its edge locations. 
