@@ -87,9 +87,7 @@ Before we can start the workshop, we need to have a SageMaker Jupyter Notebook d
 And, finally, it will create a file inside that S3 bucket that contains a zip of OpenCV lib to be used in *Module 4 - Front End* of this workshop.
 
 **CloudFormation**
-1. [Right-click here](sagemaker_template.yml?raw=true) and save the **sagemaker_template.yml** template file you are going to use to deploy the basic infrastructure for this workshop.
-1. <a id="raw-url" href="https://github.com/aws-samples/mammography-classification-workshop/blob/master/sagemaker_template.yml">Click here</a> to download the **sagemaker_template.yml** template file you are going to use to deploy the basic infrastructure for this workshop.
-1. <a id="raw-url" href="https://raw.githubusercontent.com/aws-samples/mammography-classification-workshop/blob/master/sagemaker_template.yml">Click here</a> to download the **sagemaker_template.yml** template file you are going to use to deploy the basic infrastructure for this workshop.
+1. <a id="raw-url" href="https://github.com/aws-samples/mammography-classification-workshop/blob/master/sagemaker_template.yml">Right-click here</a> and **save link as** to save the **sagemaker_template.yml** template file you are going to use to deploy the basic infrastructure for this workshop.
 1. Login in the [AWS Console](https://console.aws.amazon.com/console/home). Make sure you are in the correct region assigned for this workshop.
 1. Navigate to CloudFormation console: [https://console.aws.amazon.com/cloudformation/home](https://console.aws.amazon.com/cloudformation/home)
 1. Once there, choose **Create Stack**.
