@@ -113,7 +113,7 @@ In order for us to do that, we will need to open the Jupyter Notebook created in
 
 1. Open the SageMaker Notebook console at https://console.aws.amazon.com/sagemaker/home#/notebook-instances
 2. Click on **Open JupyterLab**
-3. In the Jupyter Lab console, open **Git menu** and then click on **Open Terminal**. Execute the code below in the terminal:
+3. In the Jupyter Lab console, open **Git menu** and then click on **Git Command in Terminal**. Execute the code below in the terminal:
 ```
 cd SageMaker
 git clone https://github.com/aws-samples/mammography-classification-workshop.git
