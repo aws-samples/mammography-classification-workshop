@@ -57,7 +57,7 @@ Ground Truth expects the data that is going to be classified to be stored in S3,
 
 ### Part 1: Uploading the images
 
-There is a **zip file** that can [be download from here](/groundtruth/zip-mammography/mammography-to-download.zip?raw=true).
+There is a **zip file** that can [be downloaded from here](/groundtruth/zip-mammography/mammography-to-download.zip?raw=true).
 Download it locally and unzip it.
 
 Go to the **Amazon S3 Console** and open the bucket whose name begins with **mammography-workshop-files**:
